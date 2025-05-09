@@ -1,13 +1,14 @@
+// src/App.js
 import React from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import HomePage from './pages/HomePage';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
+import Login from './components/Auth/Login';
+import Signup from './components/Auth/Signup';
 import DashboardPage from './pages/DashboardPage';
+import DashboardHome from './components/features/dashboard/DashboardHome';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
-import ProtectedRoute from './components/common/ProtectedRoute';
-import { AuthProvider } from './contexts/AuthContext';
+import ProtectedRoute from '../src/components/common/ProtectedRoute1';
 import { ThemeProvider } from './contexts/ThemeContext';
 import './App.css';
 
@@ -22,15 +23,23 @@ const AppLayout = () => {
       <main className={isDashboard ? "dashboard-main" : "main-content"}>
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
           <Route 
-            path="/dashboard/*" 
+            path="/dashboardHome" 
+            element={
+              <ProtectedRoute>
+                <DashboardHome />
+              </ProtectedRoute>
+            } 
+          />
+          <Route
+            path="/dashboard/*"
             element={
               <ProtectedRoute>
                 <DashboardPage />
               </ProtectedRoute>
-            } 
+            }
           />
         </Routes>
       </main>
@@ -43,9 +52,7 @@ function App() {
   return (
     <BrowserRouter>
       <ThemeProvider>
-        <AuthProvider>
-          <AppLayout />
-        </AuthProvider>
+        <AppLayout />
       </ThemeProvider>
     </BrowserRouter>
   );

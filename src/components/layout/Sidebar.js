@@ -1,15 +1,34 @@
 // src/components/layout/Sidebar.js
-import React, { useState } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from '../../contexts/ThemeContext';
-import { useAuth } from '../../contexts/AuthContext';
+import { auth } from '../Auth/firebase'; // Adjust path as needed
+import { signOut } from 'firebase/auth';
 import '../../styles/Sidebar.css';
 
 const Sidebar = () => {
   const { darkMode, toggleDarkMode } = useTheme();
-  const { currentUser, logout } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const [expanded, setExpanded] = useState(true);
+  const [userName, setUserName] = useState('');
+  const [userEmail, setUserEmail] = useState('');
+  const [userInitial, setUserInitial] = useState('U');
+  
+  // Get current user info when component mounts
+  useEffect(() => {
+    const user = auth.currentUser;
+    if (user) {
+      // Use displayName for username
+      const displayName = user.displayName || 'User';
+      setUserName(displayName);
+      setUserEmail(user.email || 'user@example.com');
+      setUserInitial(displayName.charAt(0).toUpperCase());
+    } else {
+      // If no user is logged in, redirect to login
+      navigate('/login');
+    }
+  }, [navigate]);
   
   // Define feature categories
   const mainFeatures = [
@@ -40,9 +59,23 @@ const Sidebar = () => {
 
   const isActive = (path) => {
     if (path === '') {
-      return location.pathname === '/dashboard' || location.pathname === '/dashboard/';
+      return location.pathname === '/dashboardHome' || location.pathname === '/dashboardHome/';
     }
     return location.pathname.includes(`/dashboard/${path}`);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      // Force clear any cached auth tokens
+      window.localStorage.removeItem('firebase:authUser');
+      
+      // Navigate to home page after logout
+      navigate('/', { replace: true });
+    } catch (error) {
+      console.error('Error logging out:', error);
+      alert('Failed to log out. Please try again.');
+    }
   };
 
   return (
@@ -60,11 +93,11 @@ const Sidebar = () => {
       {expanded && (
         <div className="user-profile">
           <div className="avatar">
-            {currentUser?.name ? currentUser.name.charAt(0).toUpperCase() : 'U'}
+            {userInitial}
           </div>
           <div className="user-info">
-            <h3>{currentUser?.name || 'User'}</h3>
-            <p>{currentUser?.email || 'user@example.com'}</p>
+            <h3>{userName}</h3>
+            <p>{userEmail}</p>
           </div>
         </div>
       )}
@@ -136,7 +169,7 @@ const Sidebar = () => {
         
         <button 
           className="logout-button" 
-          onClick={logout}
+          onClick={handleLogout}
           title="Logout"
         >
           <div className="menu-icon">🚪</div>

@@ -264,7 +264,7 @@ footer {
   background-color: var(--primary);
   color: white;
   border: none;
-  padding: 0.75rem 1.5rem;
+  padding: 0.75rem 1.5rem; /* Same padding as primary-button */
   border-radius: var(--radius);
   font-weight: 500;
   cursor: pointer;
@@ -286,7 +286,7 @@ footer {
   background-color: white;
   color: var(--primary);
   border: 1px solid var(--primary);
-  padding: 0.75rem 1.5rem;
+  padding: 0.75rem 1.5rem; /* Match the padding of primary-button */
   border-radius: var(--radius);
   font-weight: 500;
   cursor: pointer;
